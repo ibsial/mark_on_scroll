@@ -1,3 +1,5 @@
+import { MainnetBridgeConfigType } from "./src/utils/types"
+
 require('dotenv').config()
 
 export const DEV = false
@@ -17,11 +19,18 @@ export const telegramConfig = {
 }
 
 /******* IMPORTANT SETTINGS *******/
-export const MainnetBridgeConfig = {
+export const MainnetBridgeConfig: MainnetBridgeConfigType = {
     toLeaveEthereum: {from: 0.0025, to: 0.004}, // YES! Zero is possible!
-    targetChains: ['Arbitrum', 'Optimism', 'Linea', 'Base'] // 'Arbitrum' | 'Optimism' | 'Linea' | 'Base' | 'Ethereum'
+    targetChains: ['Arbitrum', 'Optimism', 'Linea', 'Base'], // 'Arbitrum' | 'Optimism' | 'Linea' | 'Base' | 'Ethereum'
 
     // setup withdraw/bridge amount in exchangeConfig
+
+    toLeaveTarget: {
+        Arbitrum: {from: 0.0025, to: 0.004},
+        Optimism: {from: 0.00003, to: 0.0001},
+        Linea: {from: 0.0025, to: 0.004},
+        Base: {from: 0.0001, to: 0.0002}
+    }
 }
 
 /********** OKX API DATA **********/

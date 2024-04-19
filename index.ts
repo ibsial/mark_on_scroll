@@ -32,6 +32,7 @@ async function main() {
                     success = true
                 } catch (e: any) {
                     console.log(c.red(`#${i + 1}/${pairs.length} ${signer.address} failed...`))
+                    console.log(e?.message)
                 }
                 if (success) {
                     await sleep(RandomHelpers.getRandomNumber(sleepBetweenAccs))

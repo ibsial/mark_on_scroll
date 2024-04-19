@@ -29,3 +29,13 @@ export declare type ChainName =
     | 'Scroll'
     | 'Mantle'
     | string
+
+export declare type MainnetBridgeConfigType = {
+    toLeaveEthereum: {from: number, to: number}, // YES! Zero is possible!
+    targetChains: ChainName[], // 'Arbitrum' | 'Optimism' | 'Linea' | 'Base' | 'Ethereum'
+
+    // setup withdraw/bridge amount in exchangeConfig
+
+    toLeaveTarget: {[key: ChainName]: {from: number, to: number},
+    }
+}

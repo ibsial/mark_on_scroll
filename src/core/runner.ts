@@ -58,7 +58,10 @@ async function mainnetBridge(signer: Wallet) {
     if (needBridge) {
         let toBridge
         if (!needWithdraw) {
-            toBridge = targetBalance - parseEther(RandomHelpers.getRandomNumber({from: 0.00003, to: 0.00005}).toString())
+            toBridge = targetBalance - parseEther(RandomHelpers.getRandomNumber(MainnetBridgeConfig.toLeaveTarget[targetChain]).toString())
+            if (toBridge < 0n) {
+                throw new Error('target balance < amount to leave')
+            }
         } else {
             toBridge = parseEther(withdrawAmount.toString()) - parseEther(RandomHelpers.getRandomNumber({from: 0.00003, to: 0.00005}).toString())
         }
