@@ -1,13 +1,13 @@
-import { Chain } from "./types";
+import {Chain} from './types'
 
 export const timeout = 5
 
 export const addresses = {
     mainnetBridge: {
-        Ethereum: "0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367"
+        Ethereum: '0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367'
     },
     mainnetOracle: {
-        Ethereum: "0x0d7E906BD9cAFa154b048cFa766Cc1E54E39AF9B"
+        Ethereum: '0x0d7E906BD9cAFa154b048cFa766Cc1E54E39AF9B'
     }
 }
 
@@ -31,6 +31,11 @@ export const withdrawNetworks: {[key: string]: {name: string; token: string; fee
         name: 'Base',
         token: 'ETH',
         fee: '0.00004'
+    },
+    Zksync: {
+        name: 'zkSync Era',
+        token: 'ETH',
+        fee: '0.000041'
     },
     Ethereum: {
         name: 'ERC20',

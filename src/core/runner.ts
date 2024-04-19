@@ -58,7 +58,7 @@ async function mainnetBridge(signer: Wallet) {
     if (needBridge) {
         let toBridge
         if (!needWithdraw) {
-            toBridge = targetBalance - parseEther(RandomHelpers.getRandomNumber(MainnetBridgeConfig.toLeaveTarget[targetChain]).toString())
+            toBridge = targetBalance - parseEther(RandomHelpers.getRandomNumber(MainnetBridgeConfig.toLeave[targetChain]).toString())
             if (toBridge < 0n) {
                 throw new Error('target balance < amount to leave')
             }
@@ -71,7 +71,7 @@ async function mainnetBridge(signer: Wallet) {
         await waitBalance(ethProvider, signer.address, ethBalance)
     }
 
-    let hash = await bridgeToScroll(signer.connect(ethProvider), MainnetBridgeConfig.toLeaveEthereum)
+    let hash = await bridgeToScroll(signer.connect(ethProvider), MainnetBridgeConfig.toLeave.Ethereum)
     console.log(c.green(`bridged successfully ${chains.Ethereum.explorer + hash}`))
     return true
 }

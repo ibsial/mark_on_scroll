@@ -21,16 +21,18 @@ export const telegramConfig = {
 /******* IMPORTANT SETTINGS *******/
 export const MainnetBridgeConfig: MainnetBridgeConfigType = {
     /* okx -> L2 -> Ethereum -> Scroll */
-    toLeaveEthereum: {from: 0.0025, to: 0.004}, // YES! Zero is possible!
-    targetChains: ['Arbitrum', 'Optimism', 'Linea', 'Base'], // 'Arbitrum' | 'Optimism' | 'Linea' | 'Base' | 'Ethereum'
+    targetChains: ['Arbitrum', 'Optimism', 'Linea', 'Base'], // 'Arbitrum' | 'Optimism' | 'Linea' | 'Base' | 'Zksync' | 'Ethereum'
 
     // setup withdraw/bridge amount in exchangeConfig
 
-    toLeaveTarget: {
+    toLeave: {
         Arbitrum: {from: 0.0025, to: 0.004},
-        Optimism: {from: 0.00003, to: 0.0001},
+        Optimism: {from: 0.0025, to: 0.004},
         Linea: {from: 0.0025, to: 0.004},
-        Base: {from: 0.0001, to: 0.0002}
+        Base: {from: 0.0025, to: 0.004},
+        Zksync: {from: 0.01, to: 0.012},
+
+        Ethereum: {from: 0.0025, to: 0.004}, // YES! Zero is possible!
     }
 }
 
