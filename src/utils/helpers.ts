@@ -43,7 +43,12 @@ async function defaultSleep(sec: number, needProgress = true) {
     }
     return await new Promise((resolve) => setTimeout(resolve, sec * 1000))
 }
-
+async function delayedPrint(paste: string, delay = 0.05) {
+    for (let i = 0; i < paste.length; i++) {
+        process.stdout.write(paste[i])
+        await defaultSleep(delay, false)
+    }
+}
 const retry = async (fn: any, {maxRetryCount = maxRetries ?? 5, retryInterval = 10, backoff = 1, needLog = true}, ...args: any): Promise<any> => {
     retryInterval = retryInterval * backoff
     let i = 1
@@ -154,6 +159,7 @@ export {
     log,
     sleep,
     defaultSleep,
+    delayedPrint,
     retry,
     RandomHelpers,
     bigintToPrettyStr,

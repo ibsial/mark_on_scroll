@@ -1,12 +1,13 @@
 import {Wallet} from 'ethers'
 import {shuffleWallets, sleepBetweenAccs} from './config'
 import {menu} from './src/periphery/menu'
-import {c, defaultSleep, importAndValidatePrivateData, importPrivateData, RandomHelpers, sleep, writeToFile} from './src/utils/helpers'
+import {c, defaultSleep, delayedPrint, importAndValidatePrivateData, importPrivateData, RandomHelpers, sleep, writeToFile} from './src/utils/helpers'
 import {mainnetBridge} from './src/core/runner'
 import { telegram } from './src/periphery/telegram'
 
 async function main() {
     let scenario = await menu.chooseTask()
+    await delayedPrint(c.bgMagenta(`Keep on scrolling @findmeonchain channel...\n`))
 
     switch (scenario) {
         case 'Mainnet bridge':
