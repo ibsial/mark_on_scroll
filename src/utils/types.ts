@@ -32,5 +32,6 @@ export declare type ChainName =
 
 export declare type MainnetBridgeConfigType = {
     targetChains: ChainName[]
+    notTouchEth: boolean
     toLeave: {[key: ChainName]: {from: number; to: number}}
 }

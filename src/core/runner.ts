@@ -1,4 +1,4 @@
-import {JsonRpcProvider, Network, parseEther, Wallet} from 'ethers'
+import {formatEther, JsonRpcProvider, Network, parseEther, Wallet} from 'ethers'
 import {bigintToPrettyStr, c, RandomHelpers} from '../utils/helpers'
 import {exchangeConfig, MainnetBridgeConfig} from '../../config'
 import {getBalance, waitBalance} from '../periphery/web3Client'
@@ -26,41 +26,43 @@ async function mainnetBridge(signer: Wallet) {
         new Network(targetChain, chains[targetChain].id),
         {staticNetwork: true}
     )
-
-    let nonzeroNetworks = await getChainsWithSufficientBalance(
-        MainnetBridgeConfig.targetChains,
-        signer.address,
-        parseEther(exchangeConfig.toWithdraw.from.toString()) - parseEther(RandomHelpers.getRandomNumber({from: 0.00003, to: 0.00005}).toString())
-    )
-    if (nonzeroNetworks.length > 0) {
-        targetChain = RandomHelpers.getRandomElementFromArray(nonzeroNetworks)
-        console.log(c.yellow(`found enough native in ${targetChain}`))
-    }
-
-    console.log(c.underline(`need withdraw to ${targetChain}: ${needWithdraw} need bridge: ${needBridge}`))
-
     let ethBalance = await getBalance(signer.connect(ethProvider), signer.address)
     let targetBalance = await getBalance(signer.connect(targetProvider), signer.address)
 
-    if (ethBalance >= (leastToWithdraw * 95n) / 100n) {
-        needWithdraw = false
-        needBridge = false
-    }
-    if (targetBalance - parseEther(MainnetBridgeConfig.toLeave[targetChain].from.toString()) >= leastToWithdraw) {
-        needWithdraw = false
+    if (!MainnetBridgeConfig.notTouchEth) {
+        let nonzeroNetworks = await getChainsWithSufficientBalance(
+            MainnetBridgeConfig.targetChains,
+            signer.address,
+            parseEther(MainnetBridgeConfig.toLeave[targetChain].to.toString()) -
+                parseEther(exchangeConfig.toWithdraw.from.toString()) -
+                parseEther(RandomHelpers.getRandomNumber({from: 0.00003, to: 0.00005}).toString())
+        )
+        if (nonzeroNetworks.length > 0) {
+            targetChain = RandomHelpers.getRandomElementFromArray(nonzeroNetworks).network
+            console.log(c.yellow(`found enough native in ${targetChain}`))
+        }
+
+        console.log(c.underline(`need withdraw to ${targetChain}: ${needWithdraw} need bridge: ${needBridge}`))
+
+        if (ethBalance >= (leastToWithdraw + parseEther(MainnetBridgeConfig.toLeave['Ethereum'].to.toString()) * 95n) / 100n) {
+            needWithdraw = false
+            needBridge = false
+        }
+        if (targetBalance - parseEther(MainnetBridgeConfig.toLeave[targetChain].from.toString()) >= leastToWithdraw) {
+            needWithdraw = false
+        }
     }
 
     let withdrawAmount = 0
     if (needWithdraw) {
-        let result = await withdraw(signer.address, exchangeConfig.toWithdraw, chains[targetChain].currency, withdrawNetworks[targetChain].name)
+        let result = await withdraw(signer.address, exchangeConfig.toWithdraw, chains[targetChain].currency, targetChain)
         withdrawAmount = result.amount
         await waitBalance(targetProvider, signer.address, targetBalance)
 
         telegram.addMessage(telegram.symbols('robot') + `withdrew ${result.amount.toFixed(4)} ${chains[targetChain].currency} to ${targetChain}`)
     }
-
+    let toBridge: bigint
     if (needBridge) {
-        let toBridge
         if (!needWithdraw) {
             toBridge = targetBalance - parseEther(RandomHelpers.getRandomNumber(MainnetBridgeConfig.toLeave[targetChain]).toString())
             if (toBridge < 0n) {
@@ -81,8 +83,11 @@ async function mainnetBridge(signer: Wallet) {
 
         await waitBalance(ethProvider, signer.address, ethBalance)
     }
-
-    let hash = await bridgeToScroll(signer.connect(ethProvider), MainnetBridgeConfig.toLeave.Ethereum)
+    let toLeaveEth = MainnetBridgeConfig.toLeave.Ethereum
+    if (MainnetBridgeConfig.notTouchEth && needBridge) {
+        toLeaveEth = {from: parseFloat(formatEther(ethBalance)) + 0.00005, to: parseFloat(formatEther(ethBalance)) + 0.0002}
+    }
+    let hash = await bridgeToScroll(signer.connect(ethProvider), toLeaveEth)
     console.log(c.green(`bridged successfully ${chains.Ethereum.explorer + hash}`))
     telegram.addMessage(telegram.symbols('scroll') + `Ethereum --> Scroll ${telegram.applyFormatting(chains.Ethereum.explorer + hash, 'url')}`)
 

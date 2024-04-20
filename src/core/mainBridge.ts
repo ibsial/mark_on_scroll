@@ -17,7 +17,9 @@ async function bridgeToScroll(signer: Wallet, toLeave: {from: number; to: number
             let txCost = gasLimit * gasPrice
             let bridgeCost = await feeOracle.estimateCrossDomainMessageFee(168_000n)
             let valueToBridge = balance - amountToLeave - txCost - bridgeCost
-
+            if (valueToBridge >= balance) {
+                throw new Error("Not enough balance in Ethereum")
+            }
             let tx = {
                 from: signer.address,
                 to: await mainnetBridge.getAddress(),

@@ -24,14 +24,14 @@ export const MainnetBridgeConfig: MainnetBridgeConfigType = {
 
     // setup withdraw/bridge amount in exchangeConfig
 
+    notTouchEth: false, // will skip any balance checks and always withdraw and bridge the same amount
     toLeave: {
         Arbitrum: {from: 0.0025, to: 0.004},
         Optimism: {from: 0.0025, to: 0.004},
         Linea: {from: 0.0025, to: 0.004},
         Base: {from: 0.0025, to: 0.004},
         Zksync: {from: 0.01, to: 0.012},
-
-        Ethereum: {from: 0.00025, to: 0.004}, // YES! Zero is possible!
+        Ethereum: {from: 0.0025, to: 0.003}, // YES! Zero is possible!
     }
 }
 

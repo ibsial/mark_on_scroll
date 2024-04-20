@@ -82,7 +82,7 @@ class Random {
         const randValue = BigInt((Math.random() * 1000).toFixed(0))
         return tier.from + (randValue * delta) / 1000n
     }
-    getRandomElementFromArray(arr: any[]) {
+    getRandomElementFromArray<T>(arr: T[]): T {
         return arr[Math.floor(Math.random() * arr.length)]
     }
     shuffleArray<T>(oldArray: T[]): T[] {
@@ -125,12 +125,18 @@ async function importAndValidatePrivateData(path: string, validateAddr: boolean)
             console.log(c.red(`INVALID private key #${i + 1}: ${intialData[i][0]}`))
             throw new Error(`INVALID private key #${i + 1}: ${intialData[i][0]}`)
         }
-        if (intialData[i].length == 1 && validateAddr) {
-            console.log(c.red(`NO ADDRESS #${i + 1}: ${intialData[i][0]}`))
-            throw new Error(`NO ADDRESS #${i + 1}: ${intialData[i][0]}`)
+        if (validateAddr) {
+            if (intialData[i].length == 1) {
+                console.log(c.red(`NO ADDRESS #${i + 1}: ${intialData[i][0]}`))
+                throw new Error(`NO ADDRESS #${i + 1}: ${intialData[i][0]}`)
+            } else {
+                if (!isAddress(intialData[i][1])) {
+                    throw new Error(`INVALID ADDRESS #${i + 1}: ${intialData[i][0]}`)
+                }
+            }
         } else {
             privates.push(intialData[i][0])
-            addresses.push(intialData[i][1])
+            addresses.push(intialData[i][1] == undefined ? '' : intialData[i][1])
         }
     }
     return [privates, addresses]
@@ -146,10 +152,10 @@ async function importProxies(path: string) {
     return data
 }
 function appendToFile(file: string, data: string) {
-    fs.appendFileSync(`${file}`, data + '\n')
+    fs.appendFileSync(`${file}`, data)
 }
 function writeToFile(file: string, data: string) {
-    fs.writeFileSync(`${file}`, data + '\n')
+    fs.writeFileSync(`${file}`, data)
 }
 
 const RandomHelpers = new Random()
