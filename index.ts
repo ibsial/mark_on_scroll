@@ -1,9 +1,10 @@
-import {Wallet} from 'ethers'
-import {shuffleWallets, sleepBetweenAccs} from './config'
+import {JsonRpcProvider, Wallet} from 'ethers'
+import {goodGwei, shuffleWallets, sleepBetweenAccs} from './config'
 import {menu} from './src/periphery/menu'
 import {c, defaultSleep, delayedPrint, importAndValidatePrivateData, importPrivateData, RandomHelpers, sleep, writeToFile} from './src/utils/helpers'
 import {mainnetBridge} from './src/core/runner'
 import {telegram} from './src/periphery/telegram'
+import { waitGwei } from './src/periphery/web3Client'
 
 async function main() {
     let scenario = await menu.chooseTask()
@@ -32,6 +33,7 @@ async function main() {
                 console.log(c.cyan(`#${i + 1}/${pairs.length} ${signer.address} | ${scenario}`))
                 let success = false
                 try {
+                    await waitGwei(goodGwei)
                     telegram.addMessage(`#${i + 1}/${pairs.length} ${signer.address}`)
                     await mainnetBridge(signer)
                     success = true

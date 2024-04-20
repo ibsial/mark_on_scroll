@@ -1,8 +1,9 @@
 import {ERC20__factory} from '../../typechain'
 import {ethers, Wallet, JsonRpcProvider, TransactionRequest, parseUnits, BigNumberish, TransactionResponse} from 'ethers'
 import {FeeType} from '../utils/types'
-import {defaultSleep, retry} from '../utils/helpers'
+import {defaultSleep, RandomHelpers, retry} from '../utils/helpers'
 import {DEV} from '../../config'
+import { chains } from '../utils/constants'
 require('dotenv').config()
 
 async function getNativeBalance(signerOrProvider: Wallet | JsonRpcProvider, address: string): Promise<bigint> {
@@ -126,7 +127,8 @@ async function getGasPrice(
         {maxRetryCount: 20, retryInterval: 10}
     )
 }
-async function waitGwei(signerOrProvider: Wallet | JsonRpcProvider, want: number = 40) {
+async function waitGwei(want: number = 40) {
+    let signerOrProvider = new JsonRpcProvider(RandomHelpers.getRandomElementFromArray(chains.Ethereum.rpc))
     console.log(`wait gwei ${new Date().toString()}`)
     let {gasPrice} = await getGwei(signerOrProvider, 1)
     while ((gasPrice * 95n) / 100n > parseUnits(want.toString(), 'gwei')) {
