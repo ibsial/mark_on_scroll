@@ -2,7 +2,7 @@ import {Wallet, JsonRpcProvider, Contract, ZeroAddress, formatEther, Network} fr
 import {getBalance, getNativeBalance, approve, sendTx, estimateTx, sendRawTx} from './web3Client'
 import {RandomHelpers, c, defaultSleep} from '../utils/helpers'
 import axios from 'axios'
-import { chains } from '../utils/constants'
+import {chains} from '../utils/constants'
 
 async function needWithdraw(signerOrProvider: Wallet | JsonRpcProvider, address: string, amountWant: bigint, window = 12n, tokenAddress?: string) {
     let balance: bigint
@@ -46,7 +46,6 @@ async function changeIp(link: string) {
     }
     try {
         await axios.get(link)
-    } catch (e) {
-    }
+    } catch (e) {}
 }
 export {getPrice, needWithdraw, getChainsWithSufficientBalance, changeIp}

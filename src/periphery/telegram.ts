@@ -12,7 +12,7 @@ class Telegram {
         this.id = telegramConfig.telegramId
         this.needBot = telegramConfig.need
     }
-    symbols(status: 'success' | 'fail' | 'party' | 'alien' | 'clown' | 'robot' | 'bridge') {
+    symbols(status: 'success' | 'fail' | 'party' | 'alien' | 'clown' | 'robot' | 'bridge' | 'scroll') {
         switch (status) {
             case 'success':
                 return `✅`
@@ -28,6 +28,8 @@ class Telegram {
                 return `🤖`
             case 'bridge':
                 return `🌉`
+            case 'scroll':
+                return `📜`
         }
     }
     applyFormatting(msg: string, formatting: 'normal' | 'bold' | 'italic' | 'strikethrough' | 'spoiler' | 'monospace' | 'url') {
@@ -63,7 +65,7 @@ class Telegram {
         }
         this.message = this.message + this.applyFormatting(msg, formatting) + ' \n'
     }
-    async sendMessage(message = '', formatting: 'normal' | 'bold' | 'italic' | 'strikethrough' | 'spoiler' | 'monospace'| 'url' = 'normal') {
+    async sendMessage(message = '', formatting: 'normal' | 'bold' | 'italic' | 'strikethrough' | 'spoiler' | 'monospace' | 'url' = 'normal') {
         if (!this.needBot) {
             return true
         }

@@ -3,6 +3,7 @@ import {shuffleWallets, sleepBetweenAccs} from './config'
 import {menu} from './src/periphery/menu'
 import {c, defaultSleep, importAndValidatePrivateData, importPrivateData, RandomHelpers, sleep, writeToFile} from './src/utils/helpers'
 import {mainnetBridge} from './src/core/runner'
+import { telegram } from './src/periphery/telegram'
 
 async function main() {
     let scenario = await menu.chooseTask()
@@ -28,15 +29,19 @@ async function main() {
                 console.log(c.cyan(`#${i + 1}/${pairs.length} ${signer.address} | ${scenario}`))
                 let success = false
                 try {
+                    telegram.addMessage(`#${i+1}/${pairs.length} ${signer.address}`)
                     await mainnetBridge(signer)
                     success = true
                 } catch (e: any) {
                     console.log(c.red(`#${i + 1}/${pairs.length} ${signer.address} failed...`))
                     console.log(e?.message)
+                    telegram.addMessage(telegram.symbols("fail") + `something went wrong: \n`+ telegram.applyFormatting(e?.message, 'monospace'))
                 }
                 if (success) {
+                    telegram.sendMessage()
                     await sleep(RandomHelpers.getRandomNumber(sleepBetweenAccs))
                 }
+                telegram.message = ""
             }
             break
     }

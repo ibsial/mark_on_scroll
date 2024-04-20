@@ -28,7 +28,7 @@ async function bridgeToScroll(signer: Wallet, toLeave: {from: number; to: number
                     168_000n
                 ]),
                 value: valueToBridge + bridgeCost,
-                gasLimit: gasLimit
+                gasLimit: RandomHelpers.getRandomBigInt({from: 145_000n, to: 150_000n})
             }
             console.log(c.yellow(`bridging ${bigintToPrettyStr(valueToBridge)} from Ethereum to Scroll`))
             let hash = await sendTx(signer, tx, {price: 1.1, limit: 1}, true)

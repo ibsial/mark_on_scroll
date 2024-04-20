@@ -129,7 +129,7 @@ async function getGasPrice(
 async function waitGwei(signerOrProvider: Wallet | JsonRpcProvider, want: number = 40) {
     console.log(`wait gwei ${new Date().toString()}`)
     let {gasPrice} = await getGwei(signerOrProvider, 1)
-    while (gasPrice * 95n / 100n > parseUnits(want.toString(), "gwei")) {
+    while ((gasPrice * 95n) / 100n > parseUnits(want.toString(), 'gwei')) {
         await defaultSleep(60)
         gasPrice = (await getGwei(signerOrProvider, 1)).gasPrice
     }
@@ -162,7 +162,7 @@ async function estimateTx(signer: Wallet, txBody: TransactionRequest, multiplier
     )
 }
 async function sendTx(signer: Wallet, txBody: TransactionRequest, gasMultipliers = {price: 1.3, limit: 1.3}, waitConfirmation = true) {
-    let gasLimit = txBody?.gasLimit ?? await estimateTx(signer, txBody, gasMultipliers.limit)
+    let gasLimit = txBody?.gasLimit ?? (await estimateTx(signer, txBody, gasMultipliers.limit))
     txBody.gasLimit = gasLimit
     let fee = await getGasPrice(signer, gasMultipliers.price)
     txBody = {...txBody, ...fee}

@@ -125,8 +125,8 @@ async function withdraw(
     currency = 'ETH',
     network = 'Optimism',
     waitBalance = true
-): Promise<{ amount: number; chain: string; }> {
-    const binanceExch = new Okx()
+): Promise<{amount: number; chain: string}> {
+    const binanceExch = new Okx() // lets call it a 'feature' lol
     await defaultSleep(1, false)
     return binanceExch.withraw(toAddress, tier, currency, network, waitBalance)
 }

@@ -31,7 +31,6 @@ export declare type ChainName =
     | string
 
 export declare type MainnetBridgeConfigType = {
-    targetChains: ChainName[],
-    toLeave: {[key: ChainName]: {from: number, to: number},
-    }
+    targetChains: ChainName[]
+    toLeave: {[key: ChainName]: {from: number; to: number}}
 }

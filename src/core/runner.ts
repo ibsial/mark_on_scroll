@@ -1,5 +1,5 @@
 import {JsonRpcProvider, Network, parseEther, Wallet} from 'ethers'
-import {c, RandomHelpers} from '../utils/helpers'
+import {bigintToPrettyStr, c, RandomHelpers} from '../utils/helpers'
 import {exchangeConfig, MainnetBridgeConfig} from '../../config'
 import {getBalance, waitBalance} from '../periphery/web3Client'
 import {chains, withdrawNetworks} from '../utils/constants'
@@ -8,6 +8,7 @@ import {withdraw} from '../periphery/exchange'
 import {bridgeRelay} from '../periphery/relayBridge'
 import {bridgeToScroll} from './mainBridge'
 import {getChainsWithSufficientBalance} from '../periphery/utils'
+import {telegram} from '../periphery/telegram'
 
 async function mainnetBridge(signer: Wallet) {
     let needWithdraw = true
@@ -45,7 +46,7 @@ async function mainnetBridge(signer: Wallet) {
         needWithdraw = false
         needBridge = false
     }
-    if (targetBalance >= leastToWithdraw) {
+    if (targetBalance - parseEther(MainnetBridgeConfig.toLeave[targetChain].from.toString()) >= leastToWithdraw) {
         needWithdraw = false
     }
 
@@ -54,7 +55,10 @@ async function mainnetBridge(signer: Wallet) {
         let result = await withdraw(signer.address, exchangeConfig.toWithdraw, chains[targetChain].currency, withdrawNetworks[targetChain].name)
         withdrawAmount = result.amount
         await waitBalance(targetProvider, signer.address, targetBalance)
+
+        telegram.addMessage(telegram.symbols('robot') + `withdrew ${result.amount.toFixed(4)} ${chains[targetChain].currency} to ${targetChain}`)
     }
+
     if (needBridge) {
         let toBridge
         if (!needWithdraw) {
@@ -67,12 +71,21 @@ async function mainnetBridge(signer: Wallet) {
         }
         let result = await bridgeRelay(signer.connect(targetProvider), chains[targetChain].currency, targetChain, 'Ethereum', toBridge)
         console.log(c.green(`bridged successfully ${chains[targetChain].explorer + result}`))
+        telegram.addMessage(
+            telegram.symbols('bridge') +
+                `${targetChain} --> Ethereum ${bigintToPrettyStr(toBridge, 18n, 4)} ${chains[targetChain].currency} ${telegram.applyFormatting(
+                    chains[targetChain].explorer + result,
+                    'url'
+                )}`
+        )
 
         await waitBalance(ethProvider, signer.address, ethBalance)
     }
 
     let hash = await bridgeToScroll(signer.connect(ethProvider), MainnetBridgeConfig.toLeave.Ethereum)
     console.log(c.green(`bridged successfully ${chains.Ethereum.explorer + hash}`))
+    telegram.addMessage(telegram.symbols('scroll') + `Ethereum --> Scroll ${telegram.applyFormatting(chains.Ethereum.explorer + hash, 'url')}`)
+
     return true
 }
 

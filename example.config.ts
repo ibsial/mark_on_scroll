@@ -1,5 +1,4 @@
 import {MainnetBridgeConfigType} from './src/utils/types'
-
 require('dotenv').config()
 
 export const DEV = false
@@ -20,7 +19,7 @@ export const telegramConfig = {
 
 /******* IMPORTANT SETTINGS *******/
 export const MainnetBridgeConfig: MainnetBridgeConfigType = {
-    /* okx -> L2 -> Ethereum -> Scroll */
+    /* okx -> L2 -> |relay.link| -> Ethereum -> Scroll */
     targetChains: ['Arbitrum', 'Optimism', 'Linea', 'Base'], // 'Arbitrum' | 'Optimism' | 'Linea' | 'Base' | 'Zksync' | 'Ethereum'
 
     // setup withdraw/bridge amount in exchangeConfig
@@ -32,7 +31,7 @@ export const MainnetBridgeConfig: MainnetBridgeConfigType = {
         Base: {from: 0.0025, to: 0.004},
         Zksync: {from: 0.01, to: 0.012},
 
-        Ethereum: {from: 0.0025, to: 0.004}, // YES! Zero is possible!
+        Ethereum: {from: 0.00025, to: 0.004}, // YES! Zero is possible!
     }
 }
 
