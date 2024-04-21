@@ -1,9 +1,8 @@
 import {ERC20__factory} from '../../typechain'
-import {ethers, Wallet, JsonRpcProvider, TransactionRequest, parseUnits, BigNumberish, TransactionResponse} from 'ethers'
-import {FeeType} from '../utils/types'
+import {ethers, Wallet, JsonRpcProvider, TransactionRequest, parseUnits, BigNumberish, TransactionResponse, formatEther} from 'ethers'
 import {defaultSleep, RandomHelpers, retry} from '../utils/helpers'
 import {DEV} from '../../config'
-import { chains } from '../utils/constants'
+import {chains} from '../utils/constants'
 require('dotenv').config()
 
 async function getNativeBalance(signerOrProvider: Wallet | JsonRpcProvider, address: string): Promise<bigint> {
@@ -26,12 +25,13 @@ async function getBalance(signerOrProvider: Wallet | JsonRpcProvider, address: s
     )
 }
 async function waitBalance(signerOrProvider: Wallet | JsonRpcProvider, address: string, balanceBefore: bigint, tokenAddress?: string) {
-    console.log(`waiting balance`)
+    process.stdout.write(`waiting balance`)
     let currentBalance = await getBalance(signerOrProvider, address, tokenAddress)
     while (currentBalance <= balanceBefore) {
         currentBalance = await getBalance(signerOrProvider, address, tokenAddress)
         await defaultSleep(10, false)
     }
+    process.stdout.write(` --> received ${formatEther(currentBalance - balanceBefore)}\n`)
     return true
 }
 async function needApprove(
@@ -129,9 +129,13 @@ async function getGasPrice(
 }
 async function waitGwei(want: number = 40) {
     let signerOrProvider = new JsonRpcProvider(RandomHelpers.getRandomElementFromArray(chains.Ethereum.rpc))
-    console.log(`wait gwei ${new Date().toString()}`)
     let {gasPrice} = await getGwei(signerOrProvider, 1)
+    let printed = false
     while ((gasPrice * 95n) / 100n > parseUnits(want.toString(), 'gwei')) {
+        if (!printed) {
+            console.log(`wait gwei ${new Date().toLocaleString()}`)
+            printed = true
+        }
         await defaultSleep(60)
         gasPrice = (await getGwei(signerOrProvider, 1)).gasPrice
     }

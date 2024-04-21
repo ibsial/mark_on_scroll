@@ -1,5 +1,5 @@
 import {formatEther, JsonRpcProvider, Network, parseEther, Wallet} from 'ethers'
-import {bigintToPrettyStr, c, RandomHelpers} from '../utils/helpers'
+import {bigintToPrettyStr, c, defaultSleep, RandomHelpers} from '../utils/helpers'
 import {exchangeConfig, MainnetBridgeConfig} from '../../config'
 import {getBalance, waitBalance} from '../periphery/web3Client'
 import {chains, withdrawNetworks} from '../utils/constants'
@@ -33,18 +33,17 @@ async function mainnetBridge(signer: Wallet) {
         let nonzeroNetworks = await getChainsWithSufficientBalance(
             MainnetBridgeConfig.targetChains,
             signer.address,
-            parseEther(MainnetBridgeConfig.toLeave[targetChain].to.toString()) -
-                parseEther(exchangeConfig.toWithdraw.from.toString()) -
+            parseEther(MainnetBridgeConfig.toLeave[targetChain].to.toString()) +
+                parseEther(exchangeConfig.toWithdraw.from.toString()) +
                 parseEther(RandomHelpers.getRandomNumber({from: 0.00003, to: 0.00005}).toString())
         )
         if (nonzeroNetworks.length > 0) {
             targetChain = RandomHelpers.getRandomElementFromArray(nonzeroNetworks).network
+            needWithdraw = false
             console.log(c.yellow(`found enough native in ${targetChain}`))
         }
 
-        console.log(c.underline(`need withdraw to ${targetChain}: ${needWithdraw} need bridge: ${needBridge}`))
-
-        if (ethBalance >= (leastToWithdraw + parseEther(MainnetBridgeConfig.toLeave['Ethereum'].to.toString()) * 95n) / 100n) {
+        if (ethBalance * 95n / 100n >= (leastToWithdraw + parseEther(MainnetBridgeConfig.toLeave['Ethereum'].to.toString()))) {
             needWithdraw = false
             needBridge = false
         }
@@ -52,6 +51,7 @@ async function mainnetBridge(signer: Wallet) {
             needWithdraw = false
         }
     }
+    console.log(c.underline(`need withdraw to ${targetChain}: ${needWithdraw} need bridge: ${needBridge}`))
 
     let withdrawAmount = 0
     if (needWithdraw) {
@@ -61,6 +61,7 @@ async function mainnetBridge(signer: Wallet) {
 
         telegram.addMessage(telegram.symbols('robot') + `withdrew ${result.amount.toFixed(4)} ${chains[targetChain].currency} to ${targetChain}`)
     }
+    await defaultSleep(RandomHelpers.getRandomNumber({from: 10, to: 120}))
     let toBridge: bigint
     if (needBridge) {
         if (!needWithdraw) {
@@ -83,6 +84,7 @@ async function mainnetBridge(signer: Wallet) {
 
         await waitBalance(ethProvider, signer.address, ethBalance)
     }
+    await defaultSleep(RandomHelpers.getRandomNumber({from: 10, to: 120}))
     let toLeaveEth = MainnetBridgeConfig.toLeave.Ethereum
     if (MainnetBridgeConfig.notTouchEth && needBridge) {
         toLeaveEth = {from: parseFloat(formatEther(ethBalance)) + 0.00005, to: parseFloat(formatEther(ethBalance)) + 0.0002}
