@@ -1,7 +1,7 @@
 import {formatEther, JsonRpcProvider, Network, parseEther, Wallet} from 'ethers'
 import {bigintToPrettyStr, c, defaultSleep, RandomHelpers} from '../utils/helpers'
-import {exchangeConfig, MainnetBridgeConfig} from '../../config'
-import {getBalance, waitBalance} from '../periphery/web3Client'
+import {exchangeConfig, goodGwei, MainnetBridgeConfig} from '../../config'
+import {getBalance, waitBalance, waitGwei} from '../periphery/web3Client'
 import {chains, withdrawNetworks} from '../utils/constants'
 import {ChainName} from '../utils/types'
 import {withdraw} from '../periphery/exchange'
@@ -89,6 +89,7 @@ async function mainnetBridge(signer: Wallet) {
     if (MainnetBridgeConfig.notTouchEth && needBridge) {
         toLeaveEth = {from: parseFloat(formatEther(ethBalance)) + 0.00005, to: parseFloat(formatEther(ethBalance)) + 0.0002}
     }
+    await waitGwei(goodGwei)
     let hash = await bridgeToScroll(signer.connect(ethProvider), toLeaveEth)
     console.log(c.green(`bridged successfully ${chains.Ethereum.explorer + hash}`))
     telegram.addMessage(telegram.symbols('scroll') + `Ethereum --> Scroll ${telegram.applyFormatting(chains.Ethereum.explorer + hash, 'url')}`)
